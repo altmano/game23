@@ -75,14 +75,13 @@ def world() -> IWorld:
 def conditions() -> dict[str, object]:
     """Vrátí slovník s aktuálním nastavením příznaků.
     """
-    from .alto01_altman import START_STEP
-    return  START_STEP.sets
+    return  my_actions.conditions()
 
 def tests() -> dict[str, object]:
     """Vrátí slovník jehož hodnotami jsou testovací funkce
         ověřující platnost vstupních podmínek pomocných akcí.
         """
-    raise {}
+    return my_actions.tests()
 
 
 ###########################################################################q

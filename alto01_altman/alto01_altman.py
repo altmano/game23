@@ -65,7 +65,7 @@ HAPPY = Scenario(stHAPPY, (
                 'Rajčatová_pasta.cost': 40,
                 'Česknek.cost': 40,
                 'Olivy.cost': 20,
-                'Cibule.cost': 30,
+                'Cibule.cost': 301,
                 'Kukuřice.cost': 25,
                 'Bazalka.cost': 10,
                 'Ananas.cost': 40,
@@ -74,8 +74,6 @@ HAPPY = Scenario(stHAPPY, (
                 'Mozzarela.cost': 25,
                 'Testo.toppingcount' : 0,
 
-                'lzeKoupitvRegalu':  'Regaly',
-                'lzeKoupitvChladaku':  'Oddělení_chlazenych',
                 'lzeHnist' : True,
                 'uhneteno' : False,
                 'balance' : ('Peněženka'), # Objekty, které obsahuji penize
@@ -91,12 +89,9 @@ HAPPY = Scenario(stHAPPY, (
                 },
         tests = ['argument_present',   # Argument je v aktuálním prostoru
                  'argument_buyable',  # Argument je buditelný
-                 'money_balance',  # Kolik je v argumentu penez
-                 'argument_cost',  # Kolik argument stoji penez
                  'ingredients_present' # Ma ingredience na testo
                  'dough_present' # Ma uhnetene testo
-                 'argument_lzeKoupitvRegalu', # V akt. prost. lze koupit
-                 'argument_lzeKoupitvChladaku',
+                 'vprostoru_lzeKoupit', # V akt. prost. lze koupit
                   ], # V ak. p. je již pozdravený objekt
     ),
     ScenarioStep(tsTAKE, 'Vezmi Klíče',  # Zadaný příkaz
@@ -142,7 +137,7 @@ HAPPY = Scenario(stHAPPY, (
              ('Klíče', 'Peněženka',),  # H-Objekty v batohu
              ),
     ScenarioStep(tsNS_1, 'Kup mouka',  # Zadaný příkaz
-             'Dal sis do batohu kilo mouka',
+             'Dal sis do batohu mouka',
              'Regaly',  # Aktuální prostor
              ('Oddělení_chlazenych', 'Obchod_s_potravinami',),
              # Aktuální sousedé
@@ -154,9 +149,8 @@ HAPPY = Scenario(stHAPPY, (
 
                  needs={'Peněženka.balance' : 300, },
                  tests=['argument_buyable', 'argument_present',
-                        'argument_lzeKoupitvRegalu', ],
-                 sets={'Peněženka.balance': 275,
-                       'Mouka.buyable': False,},
+                        'vprostoru_lzeKoupit', ],
+                 sets={'Peněženka.balance': 275,},
              ),
     ScenarioStep(tsNS_1, 'Kup Olivovy_olej',  # Zadaný příkaz
              'Dal sis do batohu lahve Olivovy_olej',
@@ -171,9 +165,8 @@ HAPPY = Scenario(stHAPPY, (
              # H-Objekty v batohu
                  needs={'Peněženka.balance': 275, },
                  tests=['argument_buyable', 'argument_present',
-                        'argument_lzeKoupitvRegalu', ],
-                 sets={'Peněženka.balance': 155,
-                       'Olivovy_olej.buyable': False, },
+                        'vprostoru_lzeKoupit', ],
+                 sets={'Peněženka.balance': 155,},
              ),
     ScenarioStep(tsNS_1, 'Kup Rajčatová_pasta',  # Zadaný příkaz
              'Dal sis do batohu lahev Rajčatová_pasta',
@@ -188,9 +181,8 @@ HAPPY = Scenario(stHAPPY, (
               'Rajčatová_pasta',),  # H-Objekty v batohu
                  needs={'Peněženka.balance': 155, },
                  tests=['argument_buyable', 'argument_present',
-                        'argument_lzeKoupitvRegalu', ],
-                 sets={'Peněženka.balance': 105,
-                       'Rajčatová_pasta.buyable': False, },
+                        'vprostoru_lzeKoupit', ],
+                 sets={'Peněženka.balance': 105,},
              ),
     ScenarioStep(tsNS_1, 'Kup Droždí',  # Zadaný příkaz
              'Dal sis do batohu Droždí',
@@ -205,9 +197,8 @@ HAPPY = Scenario(stHAPPY, (
               'Rajčatová_pasta', 'Droždí'),  # H-Objekty v batohu
                  needs={'Peněženka.balance': 105, },
                  tests=['argument_buyable', 'argument_present',
-                        'argument_lzeKoupitvRegalu', ],
-                 sets={'Peněženka.balance': 95,
-                       'Droždí.buyable': False, },
+                        'vprostoru_lzeKoupit', ],
+                 sets={'Peněženka.balance': 95,},
              ),
     ScenarioStep(tsGOTO, 'Jdi Oddělení_chlazenych',  # Zadaný příkaz
              'Přesunul ses do prostoru:\n'
@@ -228,9 +219,8 @@ HAPPY = Scenario(stHAPPY, (
               'Rajčatová_pasta', 'Droždí', 'Mozzarela',),  # H-Objekty v batohu
                  needs={'Peněženka.balance': 95, },
                  tests=['argument_buyable', 'argument_present',
-                        'argument_lzeKoupitvChladaku', ],
-                 sets={'Peněženka.balance': 70,
-                       'Mozzarela.buyable': False, },
+                        'vprostoru_lzeKoupit', ],
+                 sets={'Peněženka.balance': 70,},
              ),
     ScenarioStep(tsGOTO, 'Jdi Obchod_s_potravinami',  # Zadaný příkaz
              'Přesunul ses do prostoru:\n'
@@ -299,17 +289,15 @@ HAPPY = Scenario(stHAPPY, (
                        'lzeHnist': False,},
              ),
     ScenarioStep(tsNS_1, 'Přidej Rajčatová_pasta',  # Zadaný příkaz
-             'Na těsto byla natřena Rajčatová_pasta',
+             'Na těsto bylo přidáno: Rajčatová_pasta',
              'Byt',  # Aktuální prostor
              ('Ulice',),  # Aktuální sousedé
              ('Sůl', 'Voda',),  # H-objekty v prostoru
              ('Klíče', 'Peněženka', 'Mozzarela',
-              'Těsto+Rajčatová_pasta'),  # H-Objekty v batohu
+              'Těsto'),  # H-Objekty v batohu
                  needs={'uhneteno': True,
-                        'Rajčatová_pasta.buyable': False,
                         },
                  sets={'Testo.toppingcount' : 1,
-                        'Rajčatová_pasta.buyable': True,
                        },
              ),
     ScenarioStep(tsNS_1, 'Přidej Mozzarela',  # Zadaný příkaz
@@ -318,12 +306,10 @@ HAPPY = Scenario(stHAPPY, (
              ('Ulice',),  # Aktuální sousedé
              ('Klíče',),  # H-objekty v prostoru
              ('Peněženka',
-              'Těsto+Rajčatová_pasta+Mozzarela'),  # H-Objekty v batohu
-                 needs={'uhneteno': True,
-                        'Mozzarela.buyable': False,},
+              'Těsto'),  # H-Objekty v batohu
+                 needs={'uhneteno': True,},
                  tests=['argument_present', ],
-                 sets={'Testo.toppingcount' : 2,
-                       'Mozzarela.buyable': True,},
+                 sets={'Testo.toppingcount' : 2,},
              ),
     ScenarioStep(tsSUCCESS, 'Upeč',  # Zadaný příkaz
              'Vložil jsi použitelnou verzi pizzy do trouby\n'
@@ -481,64 +467,106 @@ MISTAKE = Scenario(stMISTAKES, (
         ('Sůl', 'Voda','Klíče','Peněženka', ),   # H-objekty v prostoru
         (),                                         # H-Objekty v batohu
         ),
-    ScenarioStep(tsUNMOVABLE, "vezmi stůl",         # Zadaný příkaz
-        'Zadaný objekt není možno zvednout: stůl',
-        'Byt',                                  # Aktuální prostor
-        ('Ulice', ),                                  # Aktuální sousedé
-        ('Sůl', 'Voda','Klíče','Peněženka', ),   # H-objekty v prostoru
-        (),                                         # H-Objekty v batohu
-        ),
+
+
     ScenarioStep(tsTAKE, 'Vezmi Klíče',  # Zadaný příkaz
-             'Dal sis do batohu klíče',
-             'Byt',  # Aktuální prostor
-             ('Ulice',),  # Aktuální sousedé
-             ('Peněženka', 'Sůl', 'Voda',),  # H-objekty v prostoru
-             ('Klíče',),  # H-Objekty v batohu
-             ),
+         'Dal sis do batohu klíče',
+         'Byt',  # Aktuální prostor
+         ('Ulice',),  # Aktuální sousedé
+         ('Peněženka', 'Sůl', 'Voda',),  # H-objekty v prostoru
+         ('Klíče',),  # H-Objekty v batohu
+         ),
     ScenarioStep(tsTAKE, 'Vezmi Peněženka',  # Zadaný příkaz
-             'Dal sis do batohu Peněženka',
-             'Byt',  # Aktuální prostor
-             ('Ulice',),  # Aktuální sousedé
-             ('Sůl', 'Voda',),  # H-objekty v prostoru
-             ('Klíče', 'Peněženka',),  # H-Objekty v batohu
-             ),
+         'Dal sis do batohu Peněženka',
+         'Byt',  # Aktuální prostor
+         ('Ulice',),  # Aktuální sousedé
+         ('Sůl', 'Voda',),  # H-objekty v prostoru
+         ('Klíče', 'Peněženka',),  # H-Objekty v batohu
+         ),
     ScenarioStep(tsNOT_IN_BAG, 'polož panenka',     # Zadaný příkaz
-        'Zadaný objekt v košíku není: panenka',
+        'Zadaný objekt v BAG není: panenka',
          'Byt',                                 # Aktuální prostor
         ('Ulice', ),                                  # Aktuální sousedé
         ('Sůl', 'Voda', ),                      # H-objekty v prostoru
         ('Klíče', 'Peněženka',),                      # H-Objekty v batohu
         ),
     ScenarioStep(tsGOTO, 'Jdi Ulice',  # Zadaný příkaz
-                 'Přesunul ses do prostoru:\n'
-                 'Ulice s lidmy, obchody a domy',
-                 'Ulice',  # Aktuální prostor
-                 ('Byt', 'Obchod_s_potravinami',),  # Aktuální sousedé
-                 ('Autobus',),  # H-objekty v prostoru
-                 ('Klíče', 'Peněženka',),  # H-Objekty v batohu
-                 ),
-    ScenarioStep(tsBAG_FULL, 'Vezmi Autobus',  # Zadaný příkaz
-                 'Tohle do batohu fakt nenarveš: Autobus',
-                 'Ulice',  # Aktuální prostor
-                 ('Byt', 'Obchod_s_potravinami',),  # Aktuální sousedé
-                 ('Autobus',),  # H-objekty v prostoru
-                 ('Klíče', 'Peněženka',),  # H-Objekty v batohu
-                 ),
+         'Přesunul ses do prostoru:\n'
+         'Ulice s lidmy, obchody a domy',
+         'Ulice',  # Aktuální prostor
+         ('Byt', 'Obchod_s_potravinami',),  # Aktuální sousedé
+         (),  # H-objekty v prostoru
+         ('Klíče', 'Peněženka',),  # H-Objekty v batohu
+         ),
+    ScenarioStep(tsGOTO, 'Jdi Obchod_s_potravinami',  # Zadaný příkaz
+         'Přesunul ses do prostoru:\n'
+         + (dOBCHOD := 'Obchod se spoustou potravin'),
+         'Obchod_s_potravinami',  # Aktuální prostor
+         ('Ulice', 'Oddělení_chlazenych', 'Regaly'),  # Aktuální sousedé
+         (),  # H-objekty v prostoru
+         ('Klíče', 'Peněženka',),  # H-Objekty v batohu
+         ),
+    ScenarioStep(tsGOTO, 'Jdi Regaly',  # Zadaný příkaz
+         'Přesunul ses do prostoru:\n'
+         + (dREGALY := 'Regaly s jidlem ktere nepotrebuje chladit'),
+         'Regaly',  # Aktuální prostor
+         ('Oddělení_chlazenych', 'Obchod_s_potravinami',),
+         # Aktuální sousedé
+         ('Mouka', 'Cukr', 'Droždí', 'Olivovy_olej',
+          'Rajčatová_pasta', 'Česknek', 'Olivy',
+          'Cibule', 'Kukuřice', 'Bazalka', 'Ananas',),
+         # H-objekty v prostoru
+         ('Klíče', 'Peněženka',),  # H-Objekty v batohu
+         ),
+
+        ScenarioStep(tsUNMOVABLE, "vezmi Mouka", # Zadaný příkaz
+         'Zadaný objekt není možno zvednout: Mouka',
+         'Regaly',  # Aktuální prostor
+         ('Oddělení_chlazenych', 'Obchod_s_potravinami',),
+         # Aktuální sousedé
+         ('Mouka', 'Cukr', 'Droždí', 'Olivovy_olej',
+          'Rajčatová_pasta', 'Česknek', 'Olivy',
+          'Cibule', 'Kukuřice', 'Bazalka', 'Ananas',),
+         # H-objekty v prostoru
+         ('Klíče', 'Peněženka',),  # H-Objekty v batohu
+         ),
+        #Musel jsem dat do MISTAKE scenare custom prikaz, protoze jen ten
+        # operuje s mym ekvivalentem kapacity batohu - penezy na nakup
+
+        ScenarioStep(tsBAG_FULL, 'Kup Cibule',  # Zadaný příkaz
+         'Nelze koupit předmět, na který nemáš: Cibule',
+         'Regaly',  # Aktuální prostor
+         ('Oddělení_chlazenych', 'Obchod_s_potravinami',),
+         # Aktuální sousedé
+         ('Mouka', 'Cukr', 'Droždí', 'Olivovy_olej',
+          'Rajčatová_pasta', 'Česknek', 'Olivy',
+          'Cibule', 'Kukuřice', 'Bazalka', 'Ananas',),
+         # H-objekty v prostoru
+         ('Klíče', 'Peněženka',),  # H-Objekty v batohu
+         ),
     ScenarioStep(tsHELP, '?',                       # Zadaný příkaz
         SUBJECT,
-        'Ulice',                       # Aktuální prostor
-        ('Byt', 'Obchod_s_potravinami', ),       # Aktuální sousedé
-        ('Autobus', ),                      # H-objekty v prostoru
-        ('Klíče', 'Peněženka', ),                      # H-Objekty v batohu
-        ),
+         'Regaly',  # Aktuální prostor
+         ('Oddělení_chlazenych', 'Obchod_s_potravinami',),
+         # Aktuální sousedé
+         ('Mouka', 'Cukr', 'Droždí', 'Olivovy_olej',
+          'Rajčatová_pasta', 'Česknek', 'Olivy',
+          'Cibule', 'Kukuřice', 'Bazalka', 'Ananas',),
+         # H-objekty v prostoru
+         ('Klíče', 'Peněženka',),  # H-Objekty v batohu
+         ),
     ScenarioStep(tsEND, 'KONEC',                    # Zadaný příkaz
         'Ukončili jste hru.\n'
         'Děkujeme, že jste si zahráli.',
-         'Ulice',                                  # Aktuální prostor
-        ('Byt', 'Obchod_s_potravinami',),         # Aktuální sousedé
-        ('Autobus',  ),                      # H-objekty v prostoru
-        ('Klíče', 'Peněženka', ),                      # H-Objekty v batohu
-        ),
+         'Regaly',  # Aktuální prostor
+         ('Oddělení_chlazenych', 'Obchod_s_potravinami',),
+         # Aktuální sousedé
+         ('Mouka', 'Cukr', 'Droždí', 'Olivovy_olej',
+          'Rajčatová_pasta', 'Česknek', 'Olivy',
+          'Cibule', 'Kukuřice', 'Bazalka', 'Ananas',),
+         # H-objekty v prostoru
+         ('Klíče', 'Peněženka',),  # H-Objekty v batohu
+         ),
     )   # N-tice
 )   # Konstruktor
 
@@ -551,7 +579,7 @@ ScenarioStep.next_index = 5    # Index prvního nestandardního kroku
 MISTAKE_NS = Scenario(stMISTAKES_NS, (
     HAPPY.steps[0],
     ScenarioStep(tsNS0_WrongCond, 'Uhneť',  # Zadaný příkaz
-         'Nemáš koupené potřebné suroviny',
+         'Nekoupil jsi mouku, olej nebo drozdi, nemuzes hnist',
          'Byt',  # Aktuální prostor
          ('Ulice',),  # Aktuální sousedé
          ('Sůl', 'Voda', 'Klíče', 'Peněženka',),  # H-objekty v prostoru
@@ -569,7 +597,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
         tests = ['dough_present', ],
         ),
     ScenarioStep(tsNS0_WrongCond, 'Uhneť',  # Zadaný příkaz
-         'Ingredience na testo abys mohl Uhneť',
+         'Nekoupil jsi mouku, olej nebo drozdi, nemuzes hnist',
          'Byt',  # Aktuální prostor
          ('Ulice',),  # Aktuální sousedé
          ('Sůl', 'Voda', 'Klíče', 'Peněženka',),  # H-objekty v prostoru
@@ -612,7 +640,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
      ),
 
     ScenarioStep(tsNS1_WrongCond, 'Kup Mozzarela',  # Zadaný příkaz
-     'Tady se neprodava Mozzarela',
+     'Nelze koupt nepřítomný objekt Voda',
      'Regaly',  # Aktuální prostor
      ('Oddělení_chlazenych', 'Obchod_s_potravinami',),  # Aktuální sousedé
      ('Mouka', 'Cukr', 'Droždí', 'Olivovy_olej',
@@ -621,7 +649,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
      ('Klíče','Peněženka',),
      # H-Objekty v batohu
 
-     tests=['argument_lzeKoupitvChladaku', ],
+     tests=['vprostoru_lzeKoupit', ],
 
      ),
     HAPPY.steps[6],  # Kup mouka
@@ -639,7 +667,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
          ('Klíče', 'Peněženka', 'Mouka', 'Olivovy_olej',
           'Rajčatová_pasta', 'Droždí', 'Mozzarela',),
          # H-Objekty v batohu
-                 tests=['argument_lzeKoupitvRegalu', ],
+                 tests=['vprostoru_lzeKoupit', ],
         ),
     ScenarioStep(tsNS1_WrongCond, 'Kup Salám',  # Zadaný příkaz
          'Nelze koupit předmět, na který nemáš: Salám',
@@ -651,9 +679,9 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
          # H-Objekty v batohu
          needs={'Peněženka.balance': 150, }
          ),
-    HAPPY.steps[12],    # Jdi Obchod_s_potravinami
-    HAPPY.steps[13],       # Jdi Ulice
-    HAPPY.steps[14] ,      # Jdi Byt
+    HAPPY.steps[12],  # Jdi Obchod_s_potravinami
+    HAPPY.steps[13],  # Jdi Ulice
+    HAPPY.steps[14],  # Jdi Byt
     HAPPY.steps[15],  # Poloz klice
     HAPPY.steps[16],  # Vezmi Sul
     HAPPY.steps[17],  # Vezmi Voda
@@ -699,7 +727,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
      ('Ulice',),  # Aktuální sousedé
      ('Klíče',),  # H-objekty v prostoru
      ('Peněženka',
-     'Těsto+Rajčatová_pasta+Mozzarela'),  # H-Objekty v batohu
+     'Těsto'),  # H-Objekty v batohu
      tests=['argument_present', ],
      ),
 
@@ -709,10 +737,8 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
      ('Ulice',),  # Aktuální sousedé
      ('Klíče',),  # H-objekty v prostoru
      ('Peněženka',
-      'Těsto+Rajčatová_pasta+Mozzarela'),  # H-Objekty v batohu
-     needs={
-            'Mozzarela.buyable': False, },
-
+      'Těsto'),  # H-Objekty v batohu
+    tests=['argument_present', ],
     ),
 
     ScenarioStep(tsNS1_WrongCond, 'Přidej Rajčatová_pasta',  # Zadaný příkaz
@@ -721,9 +747,8 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
      ('Ulice',),  # Aktuální sousedé
      ('Klíče',),  # H-objekty v prostoru
      ('Peněženka',
-      'Těsto+Rajčatová_pasta+Mozzarela'),  # H-Objekty v batohu
-     needs={
-         'Rajčatová_pasta.buyable': False, },
+      'Těsto'),  # H-Objekty v batohu
+        tests=['argument_present', ],
 
      ),
 
@@ -733,7 +758,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
          ('Ulice',),  # Aktuální sousedé
          ('Klíče',),  # H-objekty v prostoru
          ('Peněženka',
-          'Těsto+Rajčatová_pasta+Mozzarela'),  # H-Objekty v batohu
+          'Těsto'),  # H-Objekty v batohu
          ),
 
     ScenarioStep(tsEND, 'konec',                    # Zadaný příkaz
@@ -743,7 +768,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
         ('Ulice',),  # Aktuální sousedé
         ('Klíče', ),
         ('Peněženka',
-              'Těsto+Rajčatová_pasta+Mozzarela'),  # H-Objekty v batohu
+              'Těsto'),  # H-Objekty v batohu
         ),
     )   # N-tice
 )   # Konstruktor

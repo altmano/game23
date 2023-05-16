@@ -3,6 +3,7 @@ Modul obsahující svět hry.
 """
 from tkinter import Place
 
+import alto01_altman.alto01_altman
 import dbg
 
 dbg.start_mod(1, __name__)
@@ -51,19 +52,19 @@ class Item(ANamed):
     def __init__(self,
                  name:str,
                  movable: bool,
-                 weight: int,
+                 cost: int,
                  **args):
         """Vytvoří h-objekt se zadaným názvem.
         """
         self._movable = movable
-        self._weight = weight
+        self._cost = cost
         super().__init__(name=name, **args)
 
     @property
-    def weight(self) -> int:
+    def cost(self) -> int:
         """Vrátí váhu daného objektu.
         """
-        return self._weight
+        return self._cost
         #raise Exception(f'Ještě není plně implementováno')
 
     @property
@@ -107,11 +108,18 @@ class AItemContainer:
         self._items = []
         self._item_names = []
         for item_name in self.initial_item_names:
-            item = Item(
-                name=item_name,
-                movable= True,
-                weight= 1,
-            )
+            if _ITEM_TO_COST.get(item_name.lower()) == 0:
+                item = Item(
+                    name=item_name,
+                    movable= True,
+                    cost= 0,
+                )
+            if _ITEM_TO_COST.get(item_name.lower()) != 0:
+                item = Item(
+                    name=item_name,
+                    movable= False,
+                    cost=_ITEM_TO_COST.get(item_name.lower()),
+                )
             if item.name.lower() not in self._item_names:
                 self._items.append(item)
                 self._item_names.append(item_name.lower())
@@ -183,7 +191,8 @@ class Bag(AItemContainer):
         global BAG
         if BAG:
             raise Exception(f'Více než jeden batoh')
-        self._capacity = 0
+        self._capacity = 300
+        self._toppingCount = 0
         super().__init__(initial_item_names, **args)
         BAG = self
 
@@ -192,7 +201,8 @@ class Bag(AItemContainer):
         """Inicializuje batoh na počátku hry. Vedle inicializace obsahu
         inicializuje i informaci o zbývající kapacitě.
         """
-        self._capacity = 0
+        self._capacity = 300
+        self._toppingCount = 0
         self._items = []
         self._item_names = []
         super().initialize()
@@ -204,12 +214,18 @@ class Bag(AItemContainer):
         """
         return self._capacity
 
+    @property
+    def topping_count(self) -> int:
+        """Vrátí kapacitu batohu.
+        """
+        return self._toppingCount
+
     def add_item(self, item: Item) -> bool:
         """Přidá zadaný objekt do batohu a vrátí informaci o tom,
         jestli se to podařilo.
         """
-        if item.weight + self._capacity <= 50:
-            self._capacity += item.weight
+        if item.cost < self._capacity:
+            self._capacity -= item.cost
             return super().add_item(item)
         return False
 
@@ -218,9 +234,15 @@ class Bag(AItemContainer):
         Vrátí odkaz na zadaný objekt nebo None.
         """
         item = super().remove_item(item_name)
-        if item:
-            self._capacity -= item.weight
         return item
+
+    def add_topping(self, item_name: str):
+        """Přidá topping na pizzu v inventari
+        """
+        if self.remove_item(item_name) is not None:
+            self._toppingCount = self._toppingCount + 1
+
+
 
 
 
@@ -393,6 +415,27 @@ NAME_2_PLACE = dict(
                   ),
 )
 
+
+_ITEM_TO_COST = dict(
+    peněženka = 0,
+    klíče = 0,
+    sůl = 0,
+    voda = 0,
+    mouka = 25,
+    cukr = 25,
+    droždí = 10,
+    olivovy_olej = 120,
+    rajčatová_pasta = 40,
+    česknek = 40,
+    olivy = 20,
+    cibule = 301,
+    kukuřice = 25,
+    bazalka = 10,
+    ananas = 40,
+    šunka = 50,
+    salám = 150,
+    mozzarela = 25,
+)
 
 
 
