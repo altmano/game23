@@ -75,7 +75,11 @@ def _initialize() -> None:
         """Inicializuje v akcich
         """
         my_world.initialize()
-
+        global _flags, _alive
+        _flags['Peněženka.balance'] = 300
+        _flags['Těsto.toppingcount'] = 0
+        _flags['uhneteno' ] = False
+        _alive = True
 
 
 class Action(my_world.ANamed):
@@ -107,7 +111,7 @@ class Action(my_world.ANamed):
     na konkrétním akci, ale pro každou akci je konstantní.
     """
 
-_flags: dict[str, object] = dict()
+_flags: dict[str, object] = START_STEP.sets
 _alive: bool = False
 
 
@@ -271,9 +275,14 @@ def _buy_action_execute(args: list[str]) -> str:
     if item.movable:
         return f'Zadaný předmět nelze koupit: {item_name}'
 
+    penezenka = my_world.BAG.item('Peněženka')
+    if  penezenka is None:
+        return 'Nemuzes kupovat, nemáš peněženka'
+
     trytobuy = my_world.BAG.add_item(item)
 
     if trytobuy:
+        _set_flag(penezenka,'balance', my_world.BAG.capacity)
         return 'Dal sis do batohu ' + item_name
     else:
         return 'Nelze koupit předmět, na který nemáš: ' + item_name
@@ -293,7 +302,10 @@ def _knead_action_execute(args: list[str]) -> str:
         return 'Příkaz uhneť nemá žádné parametry.'
 
     if my_world.current_place().name.lower() != 'byt':
-        return ''
+        return 'Tady nelze hnist. Musis byt v byt'
+
+    if _flags['uhneteno']:
+        return 'Uz mas hotove testo, nepotrebujes znovu Uhněť'
 
     mouka = my_world.BAG.item('mouka')
     olej = my_world.BAG.item('olivovy_olej')
@@ -312,7 +324,8 @@ def _knead_action_execute(args: list[str]) -> str:
     my_world.BAG.remove_item('voda')
     my_world.BAG.remove_item('sůl')
 
-    my_world.BAG.add_item(my_world.Item('těsto', True, 0))
+    my_world.BAG.add_item(my_world.Item('Těsto', True, 0))
+    _flags['uhneteno'] = True
     return 'Použil jsi vodu, sůl, mouku, droždí a olivový olej na unětění těsto'
 
 
@@ -342,6 +355,7 @@ def _add_action_execute(args: list[str]) -> str:
         return 'Nelze přidat nepřítomný objekt: ' + item_name
 
     my_world.BAG.add_topping(item_name)
+    _set_flag(testo, 'toppingcount', my_world.BAG.topping_count)
     return 'Na těsto bylo přidáno: ' + item_name
 
 
@@ -365,6 +379,17 @@ def _bake_action_execute(args: list[str]) -> str:
 
     if my_world.current_place().name.lower() != 'byt':
         return 'Musíš být v byt. Tady nejde Upeč'
+    my_world.BAG.remove_item('těsto')
+    #my_world.BAG.add_item(my_world.Item('Těsto', True, 0))
+    my_world.BAG.add_item(my_world.Item('Pizza', True, 0))
+    #_flags.clear()
+    for key in _flags:
+        _flags[key] = START_STEP.sets[key]
+
+    stop()
+    return 'Vložil jsi použitelnou verzi pizzy do trouby\n'\
+        + 'Úspěšně jste ukončili hru.\nDěkujeme, že jste si zahráli.'
+
 
 
 
@@ -433,7 +458,7 @@ def _ingredients_present(_: tuple[str, ...]) -> bool:
     if mouka is not None and olej is not None and drozdi is not None and\
         voda is not None and sul is not None:
         return True
-    return True
+    return False
 
 
 def _dough_present(_: tuple[str, ...]) -> bool:
@@ -483,8 +508,8 @@ def _get_flag(item:'Item', flagname:str) -> object:
     :param flagname: Označení zjišťované charakteristiky
     :return: Požadovaná hodnota
     """
-    full_name = NAME_2_ID[item.name.lower()] + '.' + flagname
-    result    = NAME_2_FLAG[full_name]
+    full_name = item.name + '.' + flagname
+    result    = _flags[full_name]
     return result
 
 
@@ -497,8 +522,8 @@ def _set_flag(item:'Item', flagname:str, value:object) -> None:
     :param value: Nastavovaná hodnota
     :return:
     """
-    full_name = NAME_2_ID[item.name.lower()] + '.' + flagname
-    NAME_2_FLAG[full_name] = value
+    full_name = item.name + '.' + flagname
+    _flags[full_name] = value
 
 
 _TESTNAMES_TO_TESTS: dict[str, Callable[[tuple[str, ...]], bool]] = dict(
